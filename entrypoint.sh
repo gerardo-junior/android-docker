@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/usr/local/bin/yarn --pure-lockfile
+yarn --pure-lockfile
 
 exec "$@"
