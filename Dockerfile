@@ -70,14 +70,14 @@ RUN set -ex \
 RUN npm config set spin=false
 RUN npm config set progress=false
 
-RUN npm install -g react-native-cli
+RUN npm install -g yarn react-native-cli exp
+RUN npm cache clean
 
 # download and unpack android
 RUN mkdir -p /opt/android && mkdir -p /opt/tools
-WORKDIR /opt/android
-RUN curl --silent https://dl.google.com/android/repository/tools_r$ANDROID_VERSION-linux.zip > android.zip && \
-	unzip android.zip && \
-	rm android.zip
+RUN curl --silent https://dl.google.com/android/repository/tools_r$ANDROID_VERSION-linux.zip > $(ANDROID_HOME)/android.zip && \
+	unzip $(ANDROID_HOME)/android.zip && \
+	rm $(ANDROID_HOME)/android.zip
 
 # copy tools folder
 COPY tools/android-accept-licenses.sh /opt/tools/android-accept-licenses.sh
