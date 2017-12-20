@@ -3,7 +3,7 @@
 ## Come on, do your tests.
 
 ```bash
-$ docker pull wikificha/fiscalize.environment
+$ docker pull wikificha/fiscalize.environment:stable
 ```
 
 ## How to build
@@ -11,6 +11,6 @@ $ docker pull wikificha/fiscalize.environment
 ```bash
 $ git clone -b master https://github.com/wikificha/fiscalize.environment.git
 $ cd fiscalize.environment
-$ docker build . -t wikificha/fiscalize:latest
+$ docker build . -t wikificha/fiscalize:stable
 ```
 
