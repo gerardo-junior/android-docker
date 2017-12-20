@@ -1,4 +1,4 @@
-# The custom image docker for build fiscalize 
+# The custom image docker for build fiscalize app (android)
 
 ## Come on, do your tests.
 
