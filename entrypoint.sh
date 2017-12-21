@@ -1,6 +1,6 @@
 #!/bin/bash
 
-yarn --pure-lockfile
+/usr/bin/yarn --pure-lockfile
 
 adb devices
 
