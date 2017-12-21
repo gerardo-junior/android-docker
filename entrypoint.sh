@@ -2,4 +2,6 @@
 
 yarn --pure-lockfile
 
+adb devices
+
 exec "$@"
