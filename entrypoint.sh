@@ -2,6 +2,6 @@
 
 /usr/bin/yarn --pure-lockfile
 
-adb devices
+$ANDROID_HOME/platform-tools/adb devices #Only to get authorization
 
 exec "$@"

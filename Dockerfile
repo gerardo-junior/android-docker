@@ -2,18 +2,16 @@ FROM library/ubuntu:16.04
 MAINTAINER Gerardo Junior <me@gerardo-junior.com>
 
 # https://github.com/facebook/react-native/blob/8c7b32d5f1da34613628b4b8e0474bc1e185a618/ContainerShip/Dockerfile.android-base
-
 # set default build arguments
 ARG ANDROID_VERSION=25.2.3
 ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.10.1
 
 # set default environment variables
-ENV ADB_INSTALL_TIMEOUT=10
-ENV PATH=${PATH}:/opt/buck/bin/
-ENV ANDROID_HOME=/opt/android
-ENV ANDROID_SDK_HOME=${ANDROID_HOME}
-ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+ENV ADB_INSTALL_TIMEOUT 10
+ENV ANDROID_HOME /opt/android
+ENV ANDROID_SDK_HOME ${ANDROID_HOME}
+ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/tools:/opt/buck/bin/
 
 # install system dependencies
 RUN apt-get update -y && \
@@ -67,28 +65,33 @@ RUN set -ex \
 	&& ln -s /usr/bin/node /usr/bin/nodejs
 
 # configure npm
-RUN npm config set spin=false
-RUN npm config set progress=false
+RUN /usr/bin/npm config set spin=false && \
+	/usr/bin/npm config set progress=false && \
+	/usr/bin/npm install -g yarn react-native-cli exp && \
+	/usr/bin/npm cache clean
 
-RUN npm install -g yarn react-native-cli exp
-RUN npm cache clean
+# configure yarn	
+RUN /usr/bin/yarn config set no-progress && \
+    /usr/bin/yarn config set no-spin
 
 # download and unpack android
-RUN mkdir -p $ANDROID_SDK_HOME && mkdir -p /opt/tools
-RUN cd $ANDROID_SDK_HOME && \ 
-    curl --silent https://dl.google.com/android/repository/tools_r$ANDROID_VERSION-linux.zip > android.zip && \
-    unzip android.zip && \
-    rm android.zip
+RUN mkdir -p $ANDROID_SDK_HOME && mkdir -p /opt/tools && \
+    cd $ANDROID_SDK_HOME && \ 
+	curl --silent https://dl.google.com/android/repository/tools_r$ANDROID_VERSION-linux.zip > android.zip && \
+	unzip android.zip && \
+	rm android.zip
 
-# copy tools folder
-COPY tools/android-accept-licenses.sh /opt/tools/android-accept-licenses.sh
-ENV PATH ${PATH}:/opt/tools
+# copy scripts
+COPY ./tools/android-accept-licenses.sh /opt/tools/android-accept-licenses.sh
+COPY ./entrypoint.sh /opt/tools/entrypoint.sh
+RUN chmod +x /opt/tools/entrypoint.sh /opt/tools/android-accept-licenses.sh
 
-RUN mkdir -p $ANDROID_HOME/licenses/ \
-	&& echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $ANDROID_HOME/licenses/android-sdk-license \
-	&& echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+# adding licenses
+RUN mkdir -p $ANDROID_HOME/licenses/ && \
+	echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $ANDROID_HOME/licenses/android-sdk-license && \
+	echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
 
-# sdk
+# updating sdk
 RUN /opt/tools/android-accept-licenses.sh "$ANDROID_HOME/tools/bin/sdkmanager \
 	tools \
 	\"platform-tools\" \
@@ -106,6 +109,4 @@ RUN /opt/tools/android-accept-licenses.sh "$ANDROID_HOME/tools/bin/sdkmanager \
 
 VOLUME ["/app"]
 WORKDIR /app
-ADD ./entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["sh", "/opt/tools/entrypoint.sh"]
