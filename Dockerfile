@@ -1,7 +1,6 @@
 FROM library/ubuntu:16.04
 MAINTAINER Gerardo Junior <me@gerardo-junior.com>
 
-# https://github.com/facebook/react-native/blob/8c7b32d5f1da34613628b4b8e0474bc1e185a618/ContainerShip/Dockerfile.android-base
 # set default build arguments
 ARG ANDROID_VERSION=25.2.3
 ENV NPM_CONFIG_LOGLEVEL info
