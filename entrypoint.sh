@@ -6,7 +6,7 @@ fi
 
 if [ ! -z $EXPO_TOKEN ];then
     /usr/bin/exp login -t $EXPO_TOKEN
-elif [[( ! -z $EXPO_USERNAME ) && ( ! -z $EXPO_PASSWORD )]];then
+elif [ ! -z $EXPO_USERNAME ] && [ ! -z $EXPO_PASSWORD ];then
     /usr/bin/exp login -u $EXPO_USERNAME -p $EXPO_PASSWORD
 fi
 
