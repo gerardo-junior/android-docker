@@ -15,24 +15,24 @@ ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/tools
 # install system dependencies
 RUN apt-get update -y && \
     apt-get install -y autoconf \
- 					   automake \
-					   expect \
-					   curl \
-					   g++ \
-					   gcc \
-					   git \
-					   libqt5widgets5 \
-					   lib32z1 \
-					   lib32stdc++6 \
-					   make \
-					   maven \
-					   openjdk-8-jdk \
-					   python-dev \
-					   python3-dev \
-					   qml-module-qtquick-controls \
-					   qtdeclarative5-dev \
-					   unzip \
-					   xz-utils \
+                       automake \
+                       expect \
+                       curl \
+                       g++ \
+                       gcc \
+                       git \
+                       libqt5widgets5 \
+                       lib32z1 \
+                       lib32stdc++6 \
+                       make \
+                       maven \
+                       openjdk-8-jdk \
+                       python-dev \
+                       python3-dev \
+                       qml-module-qtquick-controls \
+                       qtdeclarative5-dev \
+                       unzip \
+                       xz-utils \
 	&& \
 	rm -rf /var/lib/apt/lists/* && \
 	apt-get autoremove -y && \
