@@ -107,4 +107,4 @@ RUN /opt/tools/android-accept-licenses.sh "$ANDROID_HOME/tools/bin/sdkmanager \
 
 VOLUME ["/app"]
 WORKDIR /app
-ENTRYPOINT ["sh", "/opt/tools/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/opt/tools/entrypoint.sh"]

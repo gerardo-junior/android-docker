@@ -1,5 +1,4 @@
 # The custom image docker for build fiscalize app
-
 | master  | develop  |
 | :------------: | :------------: |
 | [![Build Status](https://api.travis-ci.org/wikificha/fiscalize.environment.svg?branch=master)](https://travis-ci.org/wikificha/fiscalize.environment)  |  [![Build Status](https://api.travis-ci.org/wikificha/fiscalize.environment.svg?branch=develop)](https://travis-ci.org/wikificha/fiscalize.environment) |
@@ -18,3 +17,6 @@ $ cd fiscalize.environment
 $ docker build . -t wikificha/fiscalize:stable
 ```
 
+### License
+
+Copyright (c) 2017 Wikificha. Released under the MIT license. See [LICENSE](/LICENSE) file for details.
