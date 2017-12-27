@@ -1,5 +1,5 @@
 language: bash
-sudo: required
+sudo: true
 services:
         - docker
 before_install:
