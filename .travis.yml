@@ -1,19 +1,22 @@
-language: bash
 sudo: true
 dist: trusty
 
 jobs:
   include:
     - stage: build docker image
+      language: bash
       script:
+      - if [ "$TRAVIS_BRANCH" == "master" ]; then TAG = 'stable'; elif [ "$TRAVIS_BRANCH" == "develop" ]; then TAG = 'latest'; fi
       - docker build --quiet=true -t wikificha/fiscalize:$TAG .
       - docker images
 
     - stage: test environment
+      language: bash
       script: 
       - docker run --rm -it wikificha/fiscalize:$TAG /bin/bash -c "/opt/tools/test.sh"
 
-    - stage: push to docker hub
+    - deploy: push to docker hub
+      provider: script
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker push wikificha/fiscalize:$TAG
