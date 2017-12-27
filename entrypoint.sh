@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e "$(pwd)/android/gradlew" ] ; then
+if [ -e "$(ipwd)/android/gradlew" ] ; then
     $(pwd)/android/gradlew clean -p $(pwd)/android/;
 fi
 
@@ -12,8 +12,10 @@ fi
 
 if [ -e "$(pwd)/yarn.lock" ] ; then
     /usr/bin/yarn --pure-lockfile
+    /usr/bin/yarn cache clean --force
 elif [ -e "$(pwd)/package.json" ] ; then
     /usr/bin/npm install
+    /usr/bin/npm cache clean --force
 fi
 
 $ANDROID_HOME/platform-tools/adb start-server # Only to get authorization
