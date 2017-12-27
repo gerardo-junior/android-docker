@@ -1,26 +1,28 @@
 sudo: true
 dist: trusty
-    
+services:
+  - docker
+
 jobs:
   include:
     - stage: build docker image
-      language: generic
+      language: bash
       script:
-      - docker build --quiet=true -t wikificha/fiscalize .
+      - docker build -t wikificha/fiscalize .
 
     - stage: test environment
-      language: generic
+      language: bash
       script:
       - docker images
       script: 
       - docker run --rm -it wikificha/fiscalize /bin/bash -c "/opt/tools/test.sh"
 
     - stage: push to docker hub
-      language: generic
-      if: branch = master OR  branch = develop
+      language: bash
+      if: branch = master OR branch = develop
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       script:
-      - if [ ${BRANCH} == "master" ]; then TAG='stable'; elif [ ${BRANCH} == "develop" ]; then TAG='latest'; fi export $TAG;
+      - if [ ${BRANCH} == "master" ]; then TAG='stable'; elif [ ${BRANCH} == "develop" ]; then TAG='latest'; fi; export $TAG;
       - docker tag wikificha/fiscalize wikificha/fiscalize:$TAG
       - docker push wikificha/fiscalize:$TAG
