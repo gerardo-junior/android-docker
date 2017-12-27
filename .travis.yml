@@ -1,12 +1,13 @@
 sudo: true
 dist: trusty
 
+env: 
+  - if [ "$BRANCH" == "master" ]; then TAG='stable'; elif [ "$BRANCH" == "develop" ]; then TAG='latest'; fi     
 jobs:
   include:
     - stage: build docker image
       language: generic
       script:
-      - if [ "$TRAVIS_BRANCH" == "master" ]; then TAG = 'stable'; elif [ "$TRAVIS_BRANCH" == "develop" ]; then TAG = 'latest'; fi
       - docker build --quiet=true -t wikificha/fiscalize:$TAG .
       - docker images
 
