@@ -2,5 +2,7 @@ language: bash
 sudo: required
 services:
         - docker
-script:
+before_install:
         - docker build --quiet=true -t wikificha/fiscalize .
+script:
+        - docker run --rm -it wikificha/fiscalize /bin/bash -c "/opt/tools/test.sh"
