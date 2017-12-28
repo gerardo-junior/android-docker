@@ -12,7 +12,7 @@ before_cache:
 
 before_install:
   # Load cached docker images
-  - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+  - if [ -d $HOME/docker ] && [ "$(ls -A $HOME/docker)" ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
   - docker images
 
 cache:
@@ -41,7 +41,7 @@ jobs:
     - stage: trigger to build on docker hub
       if: branch = master OR branch = develop
       script:
-        - 'curl -L -H "Content-Type: application/json" --data "{\"source_type\": \"Branch\", \"source_name\": \"$TRAVIS_BRANCH\"}" -X POST https://registry.hub.docker.com/u/wikificha/fiscalize/trigger/$DOCKER_HUB_TRIGGER'
+        - 'curl -v -H "Content-Type: application/json" --data "{\"source_type\": \"Branch\", \"source_name\": \"$TRAVIS_BRANCH\"}" -X POST https://registry.hub.docker.com/u/wikificha/fiscalize/trigger/$DOCKER_HUB_TRIGGER/'
 
     - stage: push docker image to quay.io
       if: branch = master OR branch = develop
