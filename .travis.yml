@@ -33,14 +33,11 @@ jobs:
       script: 
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
         - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
-        - if [ ${TRAVIS_BRANCH} != 'master' ] && [ ${TRAVIS_BRANCH} != 'develop' ]; then docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID && rm -Rf $HOME/docker; fi
-
-    - stage: push to docker hub
-      if: branch = master OR branch = develop
-      script:
-        - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
-        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
+        - if [ ${TRAVIS_BRANCH} == 'master' ] && [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG  fi
         - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
         - rm -Rf $HOME/docker
-        - docker push wikificha/fiscalize:$TAG
+
+    - stage: trigger to build on docker hub
+      if: branch = master OR branch = develop
+      script:
+        - curl -H "Content-Type: application/json" --data '{"source_type": "Branch", "source_name": ${TRAVIS_BRANCH}}' -X POST https://registry.hub.docker.com/u/wikificha/fiscalize/trigger/$DOCKER_HUB_TRIGGER
