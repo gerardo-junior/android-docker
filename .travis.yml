@@ -5,18 +5,28 @@ language: bash
 services:
   - docker
 
-install:
-  - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
+cache:
+  directories:
+    - /var/lib/docker
+
+install: true
 
 stages:
 jobs:
   include:
     - stage: build docker image
       script:
-        - docker build -t wikificha/fiscalize:$TAG .
-        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        - docker push wikificha/fiscalize:$TAG
+        - docker build -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
+        - docker images
 
     - stage: test environment
+      script: 
+        - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
+    
+    - stage: push to docker hub
+      if: branch = master OR branch = develop
       script:
-        - docker run --rm -it wikificha/fiscalize:$TAG /bin/bash -c "/opt/tools/test.sh"
+        - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
+        - docker push wikificha/fiscalize:$TAG
