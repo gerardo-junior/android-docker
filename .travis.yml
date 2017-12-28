@@ -31,12 +31,12 @@ jobs:
 
     - stage: test environment
       script: 
-        - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
+        - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
+        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
+        - docker run --rm -it wikificha/fiscalize:$TAG /bin/bash -c "/opt/tools/test.sh"
 
     - stage: push to docker hub
       if: branch = master OR branch = develop
       script:
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
-        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
         - docker push wikificha/fiscalize:$TAG
