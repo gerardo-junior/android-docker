@@ -5,7 +5,7 @@ language: bash
 services:
   - docker
 
-# hack to docker images
+# hack to cache docker images
 before_cache:
   # Save tagged docker images
   - mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}' | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
@@ -19,14 +19,15 @@ cache:
   directories:
     - $HOME/docker
 
-install: true
+install: 
+  - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
 
 stages:
 jobs:
   include:
     - stage: build docker image
       script:
-        - docker build -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
+        - docker build --cache-from wikificha/fiscalize:$TAG -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
         - docker images
 
     - stage: test environment
@@ -36,7 +37,6 @@ jobs:
     - stage: push to docker hub
       if: branch = master OR branch = develop
       script:
-        - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
         - docker push wikificha/fiscalize:$TAG
