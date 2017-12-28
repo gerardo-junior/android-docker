@@ -1,4 +1,4 @@
-# The custom image docker for build fiscalize app
+# The custom image docker for build fiscalize app [![Docker Repository on Quay](https://quay.io/repository/wikificha/fiscalize/status "Docker Repository on Quay")](https://quay.io/repository/wikificha/fiscalize)
 | master  | develop  |
 | :------------: | :------------: |
 | [![Build Status](https://api.travis-ci.org/wikificha/fiscalize.environment.svg?branch=master)](https://travis-ci.org/wikificha/fiscalize.environment)  |  [![Build Status](https://api.travis-ci.org/wikificha/fiscalize.environment.svg?branch=develop)](https://travis-ci.org/wikificha/fiscalize.environment) |

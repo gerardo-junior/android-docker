@@ -105,10 +105,9 @@ RUN mkdir -p $ANDROID_SDK_HOME && mkdir -p /opt/tools && \
     rm android.zip
 
 # copy scripts
-COPY ./tools/test.sh /opt/tools/test.sh
 COPY ./tools/android-accept-licenses.sh /opt/tools/android-accept-licenses.sh
 COPY ./entrypoint.sh /opt/tools/entrypoint.sh
-RUN chmod +x /opt/tools/test.sh /opt/tools/entrypoint.sh /opt/tools/android-accept-licenses.sh
+RUN chmod +x /opt/tools/entrypoint.sh /opt/tools/android-accept-licenses.sh
 
 # adding licenses
 RUN mkdir -p $ANDROID_HOME/licenses/ && \
