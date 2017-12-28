@@ -1,5 +1,4 @@
 sudo: true
-dist: trusty
 language: bash
 
 services:
@@ -8,7 +7,7 @@ services:
 # hack to cache docker images
 before_cache:
   # Save tagged docker images
-  - mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}' | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
+  - mkdir -p $HOME/docker && docker images -a --filter='reference=wikificha/fiscalize:*' --format '{{.Repository}}:{{.Tag}} {{.ID}}' | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
 
 before_install:
   # Load cached docker images
@@ -33,10 +32,11 @@ jobs:
     - stage: test environment
       script: 
         - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
-    
+
     - stage: push to docker hub
       if: branch = master OR branch = develop
       script:
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
+        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
         - docker push wikificha/fiscalize:$TAG
