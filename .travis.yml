@@ -7,7 +7,8 @@ services:
 # hack to cache docker images
 before_cache:
   # Save tagged docker images
-  - mkdir -p $HOME/docker && docker images -a --filter='reference=wikificha/fiscalize:*' --format '{{.Repository}}:{{.Tag}} {{.ID}}' | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
+  - rm -Rf $HOME/docker && mkdir -p $HOME/docker
+  - docker images -a --filter='reference=wikificha/fiscalize:*' --format '{{.Repository}}:{{.Tag}} {{.ID}}' | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
 
 before_install:
   # Load cached docker images
@@ -27,15 +28,16 @@ jobs:
     - stage: build docker image
       script:
         - docker build --cache-from wikificha/fiscalize:$TAG -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
+        - docker images
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
 
     - stage: test environment
       script: 
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
-        - docker run --rm -it -v $(pwd)/tools/test.sh:/opt/tools/test.sh wikificha/fiscalize:stable /bin/bash -c "/opt/tools/test.sh"
+        - docker images
+        - docker run --rm -it -v $(pwd)/tools/test.sh:/opt/tools/test.sh wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
         - if [ ${TRAVIS_BRANCH} == 'master' ] && [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG; fi
-        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID 
-        - rm -Rf $HOME/docker;
+        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
 
     - stage: trigger to build on docker hub
       if: branch = master OR branch = develop
@@ -48,4 +50,5 @@ jobs:
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TAG" --format '{{.ID}}') ]; then exit 1; fi
         - docker login -u="wikificha+travis" -p="$QUAY_BOT_TOKEN" quay.io
         - docker tag wikificha/fiscalize:$TAG quay.io/wikificha/fiscalize:$TAG 
+        - docker images
         - docker push quay.io/wikificha/fiscalize:$TAG
