@@ -33,9 +33,18 @@ jobs:
       script: 
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
         - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
-        - if [ ${TRAVIS_BRANCH} == 'master' ] && [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG  fi
+        - if [ ${TRAVIS_BRANCH} != 'master' ] && [ ${TRAVIS_BRANCH} != 'develop' ]; then docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID && rm -Rf $HOME/docker; fi
+
+    - stage: push to quay.io
+      if: branch = master OR branch = develop
+      script:
+        - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
+        - docker login -u="wikificha+travis" -p="$QUAY_BOT_PASSWORD" quay.io
+        - docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG 
         - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
+        - docker tag wikificha/fiscalize:$TAG quay.io/wikificha/fiscalize:$TAG 
         - rm -Rf $HOME/docker
+        - docker push quay.io/wikificha/fiscalize:$TAG
 
     - stage: trigger to build on docker hub
       if: branch = master OR branch = develop
