@@ -13,6 +13,7 @@ before_cache:
 before_install:
   # Load cached docker images
   - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+  - docker images
 
 cache:
   bundler: true
@@ -28,27 +29,24 @@ jobs:
     - stage: build docker image
       script:
         - docker build --cache-from wikificha/fiscalize:$TAG -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
-        - docker images
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
 
     - stage: test environment
       script: 
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi
-        - docker images
         - docker run --rm -it -v $(pwd)/tools/test.sh:/opt/tools/test.sh wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
-        - if [ ${TRAVIS_BRANCH} == 'master' ] && [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG; fi
-        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID
+        - if [ ${TRAVIS_BRANCH} == 'master' ] || [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG; fi
+        - docker rmi -f wikificha/fiscalize:$TRAVIS_BUILD_ID;
 
     - stage: trigger to build on docker hub
       if: branch = master OR branch = develop
       script:
-        - 'curl -L -H "Content-Type: application/json" --data "{\"source_type\": \"Branch\", \"source_name\": $TRAVIS_BRANCH}" -X POST https://registry.hub.docker.com/u/wikificha/fiscalize/trigger/$DOCKER_HUB_TRIGGER'
+        - 'curl -L -H "Content-Type: application/json" --data "{\"source_type\": \"Branch\", \"source_name\": \"$TRAVIS_BRANCH\"}" -X POST https://registry.hub.docker.com/u/wikificha/fiscalize/trigger/$DOCKER_HUB_TRIGGER'
 
-    - stage: push to quay.io
+    - stage: push docker image to quay.io
       if: branch = master OR branch = develop
       script:
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TAG" --format '{{.ID}}') ]; then exit 1; fi
         - docker login -u="wikificha+travis" -p="$QUAY_BOT_TOKEN" quay.io
         - docker tag wikificha/fiscalize:$TAG quay.io/wikificha/fiscalize:$TAG 
-        - docker images
         - docker push quay.io/wikificha/fiscalize:$TAG
