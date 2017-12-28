@@ -1,45 +1,22 @@
 sudo: true
 dist: trusty
 language: bash
-cache:
-  directories:
-    - $TRAVIS_BUILD_DIR/build
 
 services:
   - docker
 
-install: true   
+install:
+  - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
+
 stages:
 jobs:
   include:
     - stage: build docker image
       script:
-        - docker build -t wikificha/fiscalize:$TRAVIS_BUILD_ID .
-        - docker images
-        - docker save wikificha/fiscalize:$TRAVIS_BUILD_ID > $TRAVIS_BUILD_DIR/build/wikificha_fiscalize_$TRAVIS_BUILD_ID.tar
-
-    - stage: test environment
-      script:
-        - docker load -i $TRAVIS_BUILD_DIR/build/wikificha_fiscalize_$TRAVIS_BUILD_ID.tar
-        - docker tag wikificha_fiscalize_$TRAVIS_BUILD_ID wikificha/fiscalize:$TRAVIS_BUILD_ID
-        - docker run --rm -it wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test.sh"
-
-    - stage: push to docker hub
-      if: branch = master OR branch = develop
-      script:
-        - docker load -i $TRAVIS_BUILD_DIR/build/wikificha_fiscalize_$TRAVIS_BUILD_ID.tar
-        - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
-        - docker tag wikificha_fiscalize_$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG
+        - docker build -t wikificha/fiscalize:$TAG .
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - docker push wikificha/fiscalize:$TAG
 
-    - stage: deploy to github release
-      if: branch = master
-      deploy:
-        provider: releases
-        skip_cleanup: true
-        api_key: $GITHUB_OAUTH_TOKEN
-        file:
-          - $TRAVIS_BUILD_DIR/build/wikificha_fiscalize_$TRAVIS_BUILD_ID.tar
-        on:
-          tags: true
+    - stage: test environment
+      script:
+        - docker run --rm -it wikificha/fiscalize:$TAG /bin/bash -c "/opt/tools/test.sh"
