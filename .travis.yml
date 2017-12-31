@@ -28,8 +28,8 @@ cache:
     - $HOME/docker
 
 install:
-  - curl -sL -o "${HOME}/hadolint" "https://github.com/hadolint/hadolint/releases/download/v1.2.4/hadolint-$(uname -s)-$(uname -m)"
-  - chmod 700 "${HOME}/hadolint"
+  - curl -sL -o hadolint "https://github.com/hadolint/hadolint/releases/download/v1.2.4/hadolint-$(uname -s)-$(uname -m)"
+  - chmod 700 ./hadolint
   - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
 
 stages:
@@ -43,7 +43,7 @@ jobs:
     - stage: test environment
       script: 
         - shellcheck -f gcc -e SC1071 $(pwd)/**/*.sh
-        - "${HOME}/hadolint" Dockerfile
+        - ./hadolint Dockerfile
         - if [ ! $(docker images -a --filter="reference=wikificha/fiscalize:$TRAVIS_BUILD_ID" --format '{{.ID}}') ]; then exit 1; fi       
         - docker run --rm -it -v $(pwd)/tools/test-environment.sh:/opt/tools/test-environment.sh wikificha/fiscalize:$TRAVIS_BUILD_ID /bin/bash -c "/opt/tools/test-environment.sh"
         - if [ ${TRAVIS_BRANCH} == 'master' ] || [ ${TRAVIS_BRANCH} == 'develop' ]; then docker tag wikificha/fiscalize:$TRAVIS_BUILD_ID wikificha/fiscalize:$TAG; fi
