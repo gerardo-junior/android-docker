@@ -126,7 +126,7 @@ RUN /opt/tools/android-accept-licenses.sh "${ANDROID_HOME}/tools/bin/sdkmanager 
 	\"extras;google;m2repository\" \
 	\"add-ons;addon-google_apis-google-24\" \
 	\"extras;google;google_play_services\"" \
-    && "${ANDROID_HOME}"/tools/bin/sdkmanager --update --no-ui
+    && "${ANDROID_HOME}"/tools/bin/sdkmanager --update
 
 VOLUME ["/src"]
 WORKDIR /src
