@@ -28,7 +28,7 @@ cache:
     - $HOME/docker
 
 install:
-  - curl -sL -o /usr/local/bin/hadolint "https://github.com/hadolint/hadolint/releases/download/v1.2.4/hadolint-$(uname -s)-$(uname -m)"
+  - 'curl -sL -o /usr/local/bin/hadolint "https://github.com/hadolint/hadolint/releases/download/v1.2.4/hadolint-$(uname -s)-$(uname -m)"'
   - chmod 700 /usr/local/bin/hadolint
   - if [ ${TRAVIS_BRANCH} == 'master' ]; then export TAG='stable'; elif [ ${TRAVIS_BRANCH} == 'develop' ]; then export TAG='latest'; fi
 
